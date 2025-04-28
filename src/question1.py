@@ -2,13 +2,17 @@ import pandas as pd
 import pathlib
 import matplotlib as plt
 import io
+from datetime import datetime
+import time
 
 # Define the dataset path
-input_path = pathlib.Path(__file__).parent.parent / 'data' / 'small_data.csv'
+input_path = pathlib.Path(__file__).parent.parent / 'data' / 'data.csv'
 
 # Check if the file exists
 if not input_path.exists():
     raise FileNotFoundError(f'The file {input_path} does not exist.')
+
+start = time.time()
 
 # Read the CSV file into a DataFrame
 df = pd.read_csv(input_path)
@@ -50,13 +54,15 @@ barplots_path.mkdir(parents=True, exist_ok=True)
 # Create histograms, boxplots, and barplots for each column
 for column in df.columns:
     # Sanitize column name for file paths
+    print(f"Editing column: {column} at {datetime.now().strftime('%H:%M:%S.%f')}")
     sanitized_column = column.replace(' ', '_').replace('/', '_')
 
     if column in categorical_columns:
+        print("skip")
         # Bar plot for categorical data
-        bar_plot_path = barplots_path / f'{sanitized_column}_barplot.png'
-        df[column].value_counts().plot(kind='bar').get_figure().savefig(bar_plot_path)
-        plt.pyplot.close()
+        #bar_plot_path = barplots_path / f'{sanitized_column}_barplot.png'
+        #df[column].value_counts().plot(kind='bar').get_figure().savefig(bar_plot_path)
+        #plt.pyplot.close()
     else:
         # Histogram for numeric data
         histogram_path = histograms_path / f'{sanitized_column}_histogram.png'
@@ -90,7 +96,6 @@ correlation_pairs = (
 )
 
 # Remove duplicate pairs and self-correlations
-correlation_pairs = correlation_pairs[correlation_pairs['Variable 1'] != correlation_pairs['Variable 2']]
 correlation_pairs = correlation_pairs.drop_duplicates(subset=['Correlation'], keep='first')
 
 # Sort by absolute correlation values in descending order
@@ -132,3 +137,7 @@ with pd.ExcelWriter(statistics_correlation_path) as writer:
     statistics_correlation_pairs.to_excel(writer, sheet_name='Ranked Correlations', index=False)
 
 print(f'Statistics correlation matrix and ranked correlations saved to {statistics_correlation_path}')
+
+end = time.time()
+
+print(f"Time taken: {end - start:.4f} seconds.")
