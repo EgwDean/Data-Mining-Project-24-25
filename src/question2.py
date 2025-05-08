@@ -44,13 +44,13 @@ df_stratified.to_csv(output_path, index=False, encoding='utf-8-sig')
 
 # Normalization for the clustering
 print('Performing KMeans clustering on the original dataset...')
-features = df.drop(columns=['Label'], errors='ignore').select_dtypes(include=['number'])
+features = df.drop(columns=['Traffic Type'], errors='ignore').select_dtypes(include=['number'])
 
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(features)
 
 # Clustering with KMeans
-n_clusters = 5
+n_clusters = 8
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 df['Cluster'] = kmeans.fit_predict(X_scaled)
 
