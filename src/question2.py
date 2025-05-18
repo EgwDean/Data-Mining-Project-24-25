@@ -34,7 +34,7 @@ df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
 print('Columns dropped.\nSampling...')
 
 # Stratified sampling - 10% from each class in 'Label'
-sample_frac = 0.10
+sample_frac = 0.001
 if 'Label' not in df.columns:
     raise ValueError("Label column not found in the DataFrame.")
 
@@ -55,7 +55,7 @@ kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 df['Cluster'] = kmeans.fit_predict(X_scaled)
 
 # Stratified Sampling 10% from each KMeans cluster 
-df_sample = df.groupby('Cluster', group_keys=False).sample(frac=0.10, random_state=42)
+df_sample = df.groupby('Cluster', group_keys=False).sample(frac=sample_frac, random_state=42)
 
 # Save KMeans output
 output_path_clustered = pathlib.Path(__file__).parent.parent / 'data' / 'data_kmeans.csv'
