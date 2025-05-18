@@ -11,11 +11,11 @@ from sklearn.feature_extraction import FeatureHasher
 # Choose the dataset
 file_choice = input('Type 1 for data_stratified.csv, 2 for data_kmeans.csv, or 3 for data_birch.csv: ')
 if file_choice == '1':
-    file_name = 'data_stratified1.csv'
+    file_name = 'data_stratified.csv'
 elif file_choice == '2':
-    file_name = 'data_kmeans1.csv'
+    file_name = 'data_kmeans.csv'
 elif file_choice == '3':
-    file_name = 'data_birch1.csv'
+    file_name = 'data_birch.csv'
 else:
     raise ValueError('Invalid input. Please enter 1, 2, or 3.')
 
