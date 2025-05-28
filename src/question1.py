@@ -38,8 +38,8 @@ print(f'DataFrame statistics saved to {statistics_path}')
 # Define a list of categorical columns
 categorical_columns = [
     'Label', 'Traffic Type', 'Traffic Subtype', 
-    'Timestamp', 'Flow ID', 'Src IP', 'Dst IP'
-    ]
+    'Timestamp', 'Flow ID', 'Src IP', 'Dst IP',
+    'Src Port', 'Dst Port', 'Protocol']
 
 # Define the paths for the histograms, boxplots and barplots
 histograms_path = pathlib.Path(__file__).parent.parent / 'data' / 'histograms'
@@ -58,11 +58,23 @@ for column in df.columns:
     sanitized_column = column.replace(' ', '_').replace('/', '_')
 
     if column in categorical_columns:
-        print("skip")
-        # Bar plot for categorical data
-        #bar_plot_path = barplots_path / f'{sanitized_column}_barplot.png'
-        #df[column].value_counts().plot(kind='bar').get_figure().savefig(bar_plot_path)
-        #plt.pyplot.close()
+
+        bar_plot_path = barplots_path / f'{sanitized_column}_barplot.png'
+
+        # Get value counts
+        value_counts = df[column].value_counts()
+
+        # Only plot if reasonable number of unique values
+        if len(value_counts) > 100:
+            print(f"Too many unique values ({len(value_counts)}) for {column}, plotting only top 20")
+            value_counts = value_counts.head(20)
+
+        value_counts.plot(kind='bar')
+        plt.pyplot.title(f'Top {len(value_counts)} {column}')
+        plt.pyplot.tight_layout()
+        plt.pyplot.savefig(bar_plot_path)
+        plt.pyplot.close()
+        
     else:
         # Histogram for numeric data
         histogram_path = histograms_path / f'{sanitized_column}_histogram.png'
@@ -78,7 +90,7 @@ print(f'Bar plots saved to {barplots_path}')
 print(f'Histograms saved to {histograms_path}')
 print(f'Boxplots saved to {boxplots_path}')
 
-# Drop categorical columns from the DataFrame
+
 df.drop(columns=categorical_columns, inplace=True, errors='ignore')
 
 # Define the path for the column correlation matrix file
@@ -136,7 +148,7 @@ with pd.ExcelWriter(statistics_correlation_path) as writer:
     statistics_correlation_matrix.to_excel(writer, sheet_name='Correlation Matrix')
     statistics_correlation_pairs.to_excel(writer, sheet_name='Ranked Correlations', index=False)
 
-print(f'Statistics correlation matrix and ranked correlations saved to {statistics_correlation_path}')
+print(f'Statistics correlation matrix and ranked correlations saved to {statistics_correlation_path}')  
 
 end = time.time()
 
