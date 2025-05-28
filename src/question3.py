@@ -13,9 +13,9 @@ file_choice = input('Type 1 for data_stratified.csv, 2 for data_kmeans.csv, or 3
 if file_choice == '1':
     file_name = 'data_stratified.csv'
 elif file_choice == '2':
-    file_name = 'data_kmeans.csv'
+    file_name = 'data_kmeans_custom.csv'
 elif file_choice == '3':
-    file_name = 'data_birch.csv'
+    file_name = 'data_birch_custom.csv'
 else:
     raise ValueError('Invalid input. Please enter 1, 2, or 3.')
 
@@ -83,7 +83,7 @@ if X_final.isnull().values.any():
 
 # Perform train-test split (default)
 print('Splitting dataset into training and testing sets...')
-X_train, X_test, y_train, y_test = train_test_split(X_final, y, stratify=y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_final, y, test_size=0.2, random_state=42)
 
 # Neural Network Classifier (MLP)
 if classifier_choice == '1':
@@ -97,7 +97,7 @@ if classifier_choice == '1':
         'batch_size': 512,               # Large batch for fast training 
         'learning_rate': 'constant',     # Default learning rate for speed
         'learning_rate_init': 0.005,     # A little higher than default (0.0001) for speed
-        'max_iter': 50,                  # Limit epochs for faster training (default 200)
+        'max_iter': 1000,                # A little higher than default for better results (default 200)
         'shuffle': True,                 # Default shuffle
         'random_state': 42,              # Default seed
         'tol': 1e-3,                     # Early convergence tolerance for speed (default 1e-4)
@@ -130,34 +130,30 @@ if classifier_choice == '1':
 
 # Support Vector Machine Classifier (SVM)
 elif classifier_choice == '2':
-    # For multiclass, SVC uses one-vs-one by default
+    # Parameters focused on speed for large datasets
+    common_params = {
+        'kernel': 'linear',           # Linear kernel for speed (default 'rbf')
+        'C': 1.0,                     # Regularization parameter (default 1.0)
+        'tol': 1e-3,                  # Stopping tolerance for optimization (default 1e-3)
+        'max_iter': 1000,             # Limit iterations for speed (default -1)
+        'class_weight': 'balanced',   # Handle class imbalance 
+        'shrinking': False,           # Disable shrinking heuristic 
+        'cache_size': 500,            # Kernel cache size in MB (default=200)
+        'random_state': 42,           # Seed for reproducibility
+        'verbose': True               # Print progress
+    }
 
     if label == 'Label':
-
         # Binary classification SVM
         svm = SVC(
-            kernel='rbf',
-            C=100,
-            class_weight='balanced',
-            tol=1e-2,
-            max_iter=-1,
-            random_state=42,
-            verbose=True
+            **common_params
         )
     else:
-
         # Multiclass classification SVM
         svm = SVC(
-            kernel='rbf', 
-            C=100,
-            class_weight='balanced',
-            tol=1e-2,
-            max_iter=-1,
-            decision_function_shape='ovr',
-            random_state=42,
-            verbose=True
+            decision_function_shape='ovr',  # One-vs-rest for speed
+            **common_params
         )
-
 
     # Fit the model
     print('Training SVM classifier...')
