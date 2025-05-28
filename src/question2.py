@@ -33,8 +33,8 @@ df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
 
 print('Columns dropped.\nPerforming stratified sampling by Label...')
 
-# Stratified sampling - 0.5% from each class in 'Label'
-sample_frac = 0.015
+# Stratified sampling - 2% from each class in 'Label'
+sample_frac = 0.02
 if 'Label' not in df.columns:
     raise ValueError("Label column not found in the DataFrame.")
 
@@ -57,7 +57,7 @@ n_clusters = 8
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 df['Cluster'] = kmeans.fit_predict(X_scaled)
 
-# Custom sampling: 50% from Cluster 1, 0.5% from others
+# Custom sampling: 50% from Cluster 1, 2% from others
 print('Sampling: 50% from Cluster 1, 0.5% from others...')
 samples = []
 
@@ -65,7 +65,7 @@ for cluster_id, group in df.groupby('Cluster'):
     if cluster_id == 1:
         samples.append(group.sample(frac=0.5, random_state=42))  # take half of cluster 1
     else:
-        samples.append(group.sample(frac=sample_frac, random_state=42))  # 0.5% from others
+        samples.append(group.sample(frac=sample_frac, random_state=42))  # 2% from others
 
 df_sample_custom = pd.concat(samples)
 
@@ -82,7 +82,7 @@ X_sample_scaled = scaler.fit_transform(features_sample)
 birch = Birch(n_clusters=4)
 df_stratified['Birch_Cluster'] = birch.fit_predict(X_sample_scaled)
 
-# Custom sampling: 50% from Birch_Cluster 2, 0.5% from others
+# Custom sampling: 50% from Birch_Cluster 2, 2% from others
 print("Custom sampling from Birch clusters: 50% from Cluster 2, 0.5% from others...")
 
 birch_samples = []
@@ -91,7 +91,7 @@ for cluster_id, group in df_stratified.groupby('Birch_Cluster'):
     if cluster_id == 2:
         birch_samples.append(group)  # 50% from cluster 2
     else:
-        birch_samples.append(group.sample(frac=0.5, random_state=42))  # 0.5% from others
+        birch_samples.append(group.sample(frac=0.5, random_state=42))  # 2% from others
 
 df_stratified_birch = pd.concat(birch_samples)
 
